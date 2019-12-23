@@ -15,20 +15,9 @@ export const getTrackPath = async treckId => {
     console.log('Track is found in path:', path)
     return path;
 
-} catch (err) {
-      console.log('File', treckId, 'is not found, downloading...')
-      downloadFile(url + treckId)
-      return path;
-}
-
-  // fs.access(path, fs.F_OK, isNotFound => {
-  //   if (isNotFound) {
-  //     console.log('File', treckId, 'is not found, downloading...')
-  //     downloadFile(url + treckId)
-  //     return path;
-  //   }
-  //
-  //   console.log('Track is found in path:', path)
-  //   return path;
-  // })
+  } catch (err) {
+        console.log('File', treckId, 'is not found, downloading...')
+        downloadFile(url + treckId)
+        return path;
+  }
 }

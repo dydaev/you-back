@@ -11,65 +11,55 @@ const app = new Koa();
 const router = new Router();
 
 const os = require('os');
-const path = require('path');
 const ytdl = require('ytdl-core');
+const path = require('path');
+const extname = path.extname;
 
-import  {getTrackPath}  from './trackUploader.js'
+import utils from './utils';
+
+import { getTrackPath as routeGetTrackPath } from './routes/getTrackPath.js';
+import { stream as routeStream} from './routes/stream.js';
+
+import  { getTrackPath }  from './trackUploader.js'
 
 // log requests
-
 app.use(logger());
-
 app.use(koaBody({ multipart: true }));
 
 // custom 404
-
 app.use(async function(ctx, next) {
   await next();
   if (ctx.body || !ctx.idempotent) return;
   ctx.redirect('/404.html');
 });
 
-router.get('/getTrackPath/:id', async (ctx, next) => {
-  if(ctx.params || ctx.params.id) {
-    const trackId = ctx.params.id
-
-    if(ytdl.validateID(trackId)) {
-      const treckId = ctx.params.id;
-      console.log('Getting track:' , treckId)
-
-      const trackPath = await getTrackPath(treckId);
-      console.log('path to track,', trackPath)
-
-      ctx.body = trackPath
-    } else {
-      ctx.body = 'Invalid track id!'
-    }
-
-  } else {
-    ctx.body = 'Is not id of track!'
-  }
-});
-
-// serve files from ./public
-app.use(serve(path.join(__dirname, '/files')));
+//routes
+router.get('/getTrackPath/:id', routeGetTrackPath)
+router.get('/stream/:id', routeStream)
 
 app
   .use(router.routes())
   .use(router.allowedMethods());
 
-// app.use( async (ctx) => {
-app.use( async(ctx) => {
+//downloading files
+app.use( async (ctx) => {
+  if(/\/files\//.test(ctx.path) && ctx.path.split('/').length === 3) {
+    const fileUrlArray = ctx.path.split('/')
+    const filePath = `files/${fileUrlArray[2]}`
 
-  if(/\/files\//.test(ctx.path)) {
-    const filename = ctx.path.split('/')
-    console.log('sending path', filename[2])
-    // await stream.file(this, filename[2], {root: ''});
-    await send(ctx, ctx.path, { root: '' });
+    const fstat = await utils.stat(filePath);
+
+    if(fstat.isFile(filePath)){
+      console.log(ctx.request.ip, 'take file <-', filePath)
+      await send(ctx, ctx.path, { root: '' });
+    } else {
+      console.log('can`t find file', filePath);
+    }
   } else {
-    console.log('get',ctx.path)
+    console.log('bad url:',ctx.path)
   }
 })
+
 
 app.listen(3000);
 console.log('listening on port 3000');
