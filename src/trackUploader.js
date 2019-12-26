@@ -13,11 +13,11 @@ export const getTrackPath = async treckId => {
     await fs.accessSync(path, fs.constants.F_OK);
 
     console.log('Track is found in path:', path)
-    return path;
+    return 'downloaded ' + path;
 
   } catch (err) {
         console.log('File', treckId, 'is not found, downloading...')
         downloadFile(url + treckId)
-        return path;
+        return 'downloading ' + path;
   }
 }

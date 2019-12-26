@@ -53,7 +53,7 @@ app.use( async (ctx) => {
     const fstat = await utils.stat(filePath);
 
     if(fstat.isFile(filePath)){
-      console.log(ctx.request.ip, 'take file <-', filePath)
+      console.log(new Date().toLocaleString('en-GB'), ctx.request.ip, 'take file <-', filePath)
       await send(ctx, ctx.path, { root: '' });
     } else {
       console.log('can`t find file', filePath);
