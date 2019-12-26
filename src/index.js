@@ -2,8 +2,10 @@ const logger = require('koa-logger');
 const serve = require('koa-static');
 const koaBody = require('koa-body');
 const Router = require('koa-router');
+const cors = require('@koa/cors');
 const send = require('koa-send');
 var stream = require('koa-stream');
+
 const Koa = require('koa');
 const fs = require('fs');
 
@@ -24,6 +26,7 @@ import  { getTrackPath }  from './trackUploader.js'
 
 // log requests
 app.use(logger());
+app.use(cors());
 app.use(koaBody({ multipart: true }));
 
 // custom 404
