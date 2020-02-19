@@ -20,6 +20,7 @@ const extname = path.extname;
 import utils from './utils';
 
 import { getTrackPath as routeGetTrackPath } from './routes/getTrackPath.js';
+import { getPlayList as routePlayList} from './routes/getPlaylist.js';
 import { stream as routeStream} from './routes/stream.js';
 
 import  { getTrackPath }  from './trackUploader.js'
@@ -33,12 +34,14 @@ app.use(koaBody({ multipart: true }));
 app.use(async function(ctx, next) {
   await next();
   if (ctx.body || !ctx.idempotent) return;
+    console.log(ctx.body)
   ctx.redirect('/404.html');
 });
 
 //routes
 router.get('/getTrackPath/:id', routeGetTrackPath)
 router.get('/stream/:id', routeStream)
+router.get('/getPlayList/:id', routePlayList)
 
 app
   .use(router.routes())
@@ -58,9 +61,10 @@ app.use( async (ctx) => {
     } else {
       console.log('can`t find file', filePath);
     }
-  } else {
-    console.log('bad url:',ctx.path)
-  }
+  } 
+//    else {
+//    console.log('bad url:',ctx.path)
+//  }
 })
 
 
