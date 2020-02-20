@@ -37,7 +37,7 @@ export const getPlayList = async (ctx, next) => {
     .then(async body => {
         const playHtml = getSubStr(body, '<tbody>', '</tbody>');
         
-        console.log(playHtml)
+//        console.log(body)
         const startItemHtml = '<tr class="pl-video yt-uix-tile "';
         
         const playListItemsHtml = playHtml.split(startItemHtml);
@@ -47,13 +47,15 @@ export const getPlayList = async (ctx, next) => {
         await playListItemsHtml.forEach(async (pp, index) => {
             if(index > 0){
                 response.push({
-                    videoId : getVarValueFromHtml(pp, 'data-video-id'),
-                    videoTitle : getVarValueFromHtml(pp, 'data-title'),
-                    videoThumb : getVarValueFromHtml(pp, 'data-thumb'),
-//                    videoArtist: getVarValueFromHtml(pp, '')
+//		            length: "3:47",
+                    artist: "",//getVarValueFromHtml(pp, '')
+                    image:getVarValueFromHtml(pp, 'data-thumb'),
+                    url: 'https://youtube.com/watch?v=' + getVarValueFromHtml(pp, 'data-video-id'),
+                    title: getVarValueFromHtml(pp, 'data-title')
                 })
             }  
         })
+//        console.log(response)
         ctx.set('Content-Type', 'application/json');
         ctx.body = JSON.stringify(response);
     })

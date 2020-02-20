@@ -31,12 +31,7 @@ app.use(cors());
 app.use(koaBody({ multipart: true }));
 
 // custom 404
-app.use(async function(ctx, next) {
-  await next();
-  if (ctx.body || !ctx.idempotent) return;
-    console.log(ctx.body)
-  ctx.redirect('/404.html');
-});
+
 
 //routes
 router.get('/getTrackPath/:id', routeGetTrackPath)
@@ -67,6 +62,12 @@ app.use( async (ctx) => {
 //  }
 })
 
+app.use(async function(ctx, next) {
+  await next();
+  if (ctx.body || !ctx.idempotent) return;
+    console.log(ctx.body)
+  ctx.redirect('/404.html');
+});
 
 app.listen(3000);
 console.log('listening on port 3000');
