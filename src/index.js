@@ -21,6 +21,7 @@ import utils from './utils';
 
 import { getTrackPath as routeGetTrackPath } from './routes/getTrackPath.js';
 import { getPlayList as routePlayList} from './routes/getPlaylist.js';
+import { uploading as routeUploading} from './routes/uploading.js';
 import { stream as routeStream} from './routes/stream.js';
 
 import  { getTrackPath }  from './trackUploader.js'
@@ -36,6 +37,7 @@ app.use(koaBody({ multipart: true }));
 //routes
 router.get('/getTrackPath/:id', routeGetTrackPath)
 router.get('/stream/:id', routeStream)
+router.post('/downloading/:id', routeUploading)
 router.get('/getPlayList/:id', routePlayList)
 
 app
