@@ -24,7 +24,7 @@ import { getPlayList as routePlayList} from './routes/getPlaylist.js';
 import { uploading as routeUploading} from './routes/uploading.js';
 import { stream as routeStream} from './routes/stream.js';
 
-import  { getTrackPath }  from './trackUploader.js'
+import  { getInfo as routeGetInfo }  from './routes/getInfo.js'
 
 // log requests
 app.use(logger());
@@ -39,6 +39,8 @@ router.get('/getTrackPath/:id', routeGetTrackPath)
 router.get('/stream/:id', routeStream)
 router.post('/downloading/:id', routeUploading)
 router.get('/getPlayList/:id', routePlayList)
+
+router.get('/getInfo/:id', routeGetInfo);
 
 app
   .use(router.routes())
