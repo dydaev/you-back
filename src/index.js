@@ -23,6 +23,7 @@ import { getTrackPath as routeGetTrackPath } from './routes/getTrackPath.js';
 import { getPlayList as routePlayList} from './routes/getPlaylist.js';
 import { uploading as routeUploading} from './routes/uploading.js';
 import { stream as routeStream} from './routes/stream.js';
+import { files as routeFiles} from './routes/files.js';
 
 import  { getInfo as routeGetInfo }  from './routes/getInfo.js'
 
@@ -37,6 +38,7 @@ app.use(koaBody({ multipart: true }));
 //routes
 router.get('/getTrackPath/:id', routeGetTrackPath)
 router.get('/stream/:id', routeStream)
+router.get('/files/:folder/:file', routeFiles)
 router.post('/downloading/:id', routeUploading)
 router.get('/getPlayList/:id', routePlayList)
 
@@ -67,10 +69,17 @@ app.use( async (ctx) => {
 })
 
 app.use(async function(ctx, next) {
-  await next();
-  if (ctx.body || !ctx.idempotent) return;
-    console.log(ctx.body)
-  ctx.redirect('/404.html');
+  try {
+    await next();
+    if (ctx.body || !ctx.idempotent) return;
+    
+    ctx.redirect('/404.html');
+  } catch (err) {
+    err.status = err.status || err.statusCode || 500;
+
+    ctx.body = err.message;
+    ctx.app.emit('error', err, ctx);
+  }
 });
 
 app.listen(3000);

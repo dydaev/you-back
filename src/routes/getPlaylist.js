@@ -59,6 +59,7 @@ export const getPlayList = async (ctx, next) => {
         ctx.set('Content-Type', 'application/json');
         ctx.body = JSON.stringify(response);
     })
+    .catch(err => console.error('Can`t get playlist from youtube:',err.message));
 //      ctx.body =  ctx.body + '</body></html>'
       
   } else {

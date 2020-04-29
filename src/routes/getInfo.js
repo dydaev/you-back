@@ -1,25 +1,67 @@
 const ytdl = require('ytdl-core');
-const path = require('path');
 
-import  { getTrackPath as trackPath }  from '../trackUploader_v2.js'
+import TracksModel from'../models/track';
+
+import { addTrackToDb } from '../utils/addTrackToDb';
+import { downloadFile } from '../utils/trackDownloader_v2';
+import { checkFile, checkFileAndUpdateDb } from '../utils/checkFIle';
+
+import { filesOptions } from '../../config';
 
 export const getInfo = async (ctx, next) => {
   if(ctx.params || ctx.params.id) {
     const trackId = ctx.params.id
+    const queryParams = ctx.req._parsedUrl.query ? ctx.req._parsedUrl.query.split('&') : [];
+
+    const isForce = queryParams.includes('force')
 
     if(ytdl.validateID(trackId)) {
-      const treckId = ctx.params.id;
-      console.log('Getting track:' , treckId)
+      const fileType = ctx.params.type ? ctx.params.type : 'highestaudio';
 
-      const filePath = await trackPath(treckId);
-		console.log('path to track,', filePath)
+      let Track = await TracksModel.findOne({id: trackId}).exec();
 
-		ctx.body = filePath
+      try {
+        if (!Track) {
+          Track = await addTrackToDb(trackId, fileType);
+        } else {
+  
+          Track = {
+            ...Track._doc,
+            ...Track.pathToFile
+              && !await checkFileAndUpdateDb(trackId, Track.pathToFile, TracksModel)
+            ? {
+              pathToFile : '',
+              converted : 0,
+              downloaded : 0,
+            } 
+            :{}
+          }
+        }
+        
+      } catch (err) {
+        ctx.body=err.message;
+      }
+
+      try {
+        if ( !Track.pathToFile || (Track.pathToFile && !await checkFile(Track.pathToFile)) )
+        downloadFile(Track, fileType, isForce)
+      } catch (err) {
+        ctx.body=err.message;
+      }
+
+      if (Track && Track.id){
+        console.log('Track from -', Track.id,'-< Downloaded:', Track.downloaded, ', converted:', Track.converted, '>');
+      }
+      
+      ctx.body = JSON.stringify({
+        ...Track,
+        readiness: true ? (Track.converted / 2) + (Track.downloaded / 2) : Track.downloaded
+      });
 	} else {
-      ctx.body = 'Invalid track id!'
+      ctx.body = 'invalid track id'
     }
 
   } else {
-    ctx.body = 'Is not id of track!'
+    ctx.body = 'no track id'
   }
 }
